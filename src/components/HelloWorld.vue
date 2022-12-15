@@ -125,6 +125,11 @@ export default {
       //读取数据
       readCsv(file) {
         console.log(file)
+        this.$axios.get('https://localhost:8080/process',{
+          params:{
+
+          }
+        })
       },
 
 
@@ -132,6 +137,9 @@ export default {
         console.log('submit!');
       },
       next() {
+        this.$axios.get('http://localhost:8000/process/').then((res)=>{
+          console.log(res)
+        })
         if (this.active == 0)
         {
           if (this.form.fileType == '')
