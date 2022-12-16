@@ -20,13 +20,13 @@
         <div style="width: 60%;margin-left: 20%" class="app-container">
  
           <template>
-            <el-form ref="form" :model="form" label-width="80px">
+            <el-form ref="form" :model="form" label-width="80px" :inline="true">
               <el-form-item label="导入文件">
                 <el-upload
                   class="upload-demo"
                   drag
                   :on-success="readCsv"
-                  action=""
+                  action="https://jsonplaceholder.typicode.com/posts/"
                   :multiple="false"
                   >
                   <i class="el-icon-upload"></i>
@@ -39,114 +39,215 @@
                   <el-radio label="数据库类型"></el-radio>
                 </el-radio-group>
               </el-form-item>
-              
+              <el-form-item label="算法选择">
+                <el-radio-group v-model="form.algorithm">
+                  <el-radio label="Apriori"></el-radio>
+                  <el-radio label="FP-growth"></el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item label="支持度">
+                <el-input v-model="form.support" placeholder="请输入支持度"></el-input>
+              </el-form-item>
+              <el-form-item label="置信度">
+                <el-input v-model="form.confident" placeholder="请输入置信度"></el-input>
+              </el-form-item>
             </el-form>
           </template>
         </div>
       <el-button style="margin-top: 12px;margin-left: 20%" type="primary"  @click="next">下一步</el-button>
       </div>
-      <div v-if="active==1 && form.fileType == '数据库类型' ">
- 
-        <div style="width: 60%;margin-left: 20%" class="app-container">
- 
-          <template>
-            <el-table
-    :data="tableData"
-    style="width: 100%"
-    :default-sort="{prop: 'date', order: 'descending'}"
-    >
-    <el-table-column
-      prop="date"
-      label="日期"
-      sortable
-      width="180">
-    </el-table-column>
-    <el-table-column
-      prop="name"
-      label="姓名"
-      sortable
-      width="180">
-    </el-table-column>
-    <el-table-column
-      prop="address"
-      label="地址"
-      :formatter="formatter">
-    </el-table-column>
-  </el-table>
-          </template>
-        </div>
-      <el-button style="margin-top: 12px;margin-left: 20%" type="primary"  @click="next">下一步</el-button>
+
+      <div v-if="active==1">
+        <template>
+          <el-table
+            :data="tableData"
+            stripe
+            style="width: 100%">
+              <el-table-column
+              type="index"
+              width="50">
+            </el-table-column>
+            <el-table-column
+              prop="thing"
+              label="事务项"
+              width="800">
+            </el-table-column>
+
+          </el-table>
+        </template>
+        <el-button style="margin-top: 12px;margin-left: 20%" type="primary"  @click="next">下一步</el-button>
+      </div>
+      <div v-if="active==2">
+        <template>
+          <el-table
+            :data="tableResult"
+            style="width: 100%"
+            :default-sort="{prop: 'lift', order: 'descending'}"
+            >
+            <el-table-column
+              prop="id"
+              label="id"
+              width="50">
+            </el-table-column>
+            <el-table-column
+              prop="frontSet"
+              label="前项"
+              width="150">
+            </el-table-column>
+            <el-table-column
+              prop="latter"
+              label="后项"
+              width="150">
+            </el-table-column>
+            <el-table-column
+              prop="lift"
+              label="提升度"
+              sortable
+              width="120">
+            </el-table-column>
+            <el-table-column
+              prop="cos"
+              label="IS度量"
+              sortable
+              width="120">
+            </el-table-column>
+            <el-table-column
+              prop="confidence"
+              label="全局置信"
+              sortable
+              width="120">
+            </el-table-column>
+            <el-table-column
+              prop="kulczynski"
+              label="库尔钦斯基度量"
+              sortable
+              width="150">
+            </el-table-column>
+          </el-table>
+        </template>
       </div>
     </el-main>
     <el-aside width="200px"></el-aside>
   </el-container>
+  
   </div>
 </template>
 
 <script>
+
 export default {
   name: 'HelloWorld',
-  props: {
-    msg: String
-  },
+
   data() {
       return {
         fileTemp: null,
         active : 0,
         form: {
-          name: '',
-          region: '',
+          fileName: '',
+          algorithm: '',
           fileType: '',
+          support : '',
+          confident : '',
           delivery: false,
           type: [],
           resource: '',
           desc: ''
         },
-        tableData: [{
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1517 弄'
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
-        }]
+        tableData: [],
+        tableResult : [],
       };
     },
     methods: {
       //读取数据
-      readCsv(file) {
-        console.log(file)
-        this.$axios.get('https://localhost:8080/process',{
-          params:{
-
-          }
-        })
+      readCsv(responce, file) {
+        console.log(file.name)
+        this.form.fileName = file.name
       },
-
-
       onSubmit() {
         console.log('submit!');
       },
       next() {
-        this.$axios.get('http://localhost:8000/process/').then((res)=>{
-          console.log(res)
-        })
         if (this.active == 0)
         {
-          if (this.form.fileType == '')
+          // console.log(this.form.algorithm)
+          if (this.form.fileType == '' || this.form.support == '' || this.form.confident == '' ||
+              this.algorithm == '')
           {
-              this.open3("请选择上传的文件类型")
+              this.open3("没有填全")
               return;
           }
+          let that = this
+          this.$axios.get('http://127.0.0.1:8000/process/', {
+          params: {
+            fileName : this.form.fileName,
+            support : this.form.support, 
+            confident : this.form.confident,
+            alg : this.form.algorithm,
+          }
+        })
+        .then(function (response) {
+          console.log(response.data)
+          var table = response.data.data.tabledata
+          var len = table['size']
+          for (var i = 0 ; i < len; i ++)
+          {
+            var lst = ""
+            for (var j in table[i])
+            {
+              if (j !== '')
+                lst = lst + " " + table[i][j]
+            }
+            // console.log(lst)
+            // console.log(this)
+            that.tableData.unshift({thing : lst})
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+          
+        }
+        
+        if (this.active == 1)
+        {
+          let that = this
+          this.$axios.get('http://127.0.0.1:8000/result/', {
+          params: {
+          }
+        })
+        .then(function (response) {
+          console.log(response.data)
+          var table = response.data.data.patternAccess
+          var len = table.length
+          for (var i = 0 ; i < len; i ++)
+          {
+            var frontSet = ""
+            var latter = ""
+            var cos, lift, confidence, kulczynski
+            for (var j in table[i]['front'])
+            {
+              if (j !== '')
+              frontSet = frontSet + " " + table[i]['front'][j]
+            }
+            // console.log(front)
+            for (j in table[i]['latter'])
+            {
+              if (j !== '')
+              latter = latter + " " + table[i]['latter'][j]
+            }
+            lift = table[i]['lift']
+            cos = table[i]['cosine']
+            confidence = table[i]['allConfidenced']
+            kulczynski = table[i]['kulczynski']
+            // console.log(lst)
+            // console.log(this)
+            that.tableResult.unshift({'frontSet' : frontSet, 'latter' : latter, 'kulczynski' : kulczynski,
+          'lift' : lift, 'cos' : cos, 'confidence' : confidence})
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
         }
         if (this.active++ > 2) this.active = 0;
         // console.log(this.active)
