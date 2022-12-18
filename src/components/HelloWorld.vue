@@ -195,7 +195,7 @@ export default {
             for (var j in table[i])
             {
               if (j !== '')
-                lst = lst + " " + table[i][j]
+                lst = lst + "  ;  " + table[i][j]
             }
             // console.log(lst)
             // console.log(this)
@@ -227,7 +227,7 @@ export default {
             for (var j in table[i]['front'])
             {
               if (j !== '')
-              frontSet = frontSet + " " + table[i]['front'][j]
+              frontSet = frontSet + "\n" + table[i]['front'][j]
             }
             // console.log(front)
             for (j in table[i]['latter'])
